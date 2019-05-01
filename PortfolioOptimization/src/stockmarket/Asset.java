@@ -62,4 +62,8 @@ public class Asset {
     public void setPortfolioType(String portfolioType) {
         this.portfolioType = portfolioType;
     }
+
+    public void setReturn(int s, double enhancedReturn) {
+        this.returns.set(s, enhancedReturn);
+    }
 }
