@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package optimization.models;
+package optimization.models.cvar;
 
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
+import optimization.models.BaseOptimization;
 import parameters.Parameters;
 import stockmarket.Portfolio;
 
