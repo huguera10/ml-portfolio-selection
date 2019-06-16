@@ -19,14 +19,14 @@ public class Parameters {
 
     int historicalDays;
     int optimizationTimeLimit = 300;
-    
+
     double alpha; // cvar alpha
-    
+
     String date;
     String dataPath;
+    String trackedAssetName; // ssd
     String optimizationType; // cvar
     String portfolioWeightsResultPath;
-    
 
     public Parameters(String parametersPath) throws FileNotFoundException, IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
@@ -37,10 +37,10 @@ public class Parameters {
     }
 
     private void parseJsonElements(JSONObject jsonObject) {
-        
+
         historicalDays = (int) (long) jsonObject.getOrDefault("historicalDays", 100);
         optimizationTimeLimit = (int) (long) jsonObject.getOrDefault("optimizationTimeLimit", 300);
-        
+
         date = (String) jsonObject.getOrDefault("date", "2017-01-01");
         dataPath = (String) jsonObject.getOrDefault("dataPath", "../data/sp500.csv");
         optimizationType = (String) jsonObject.getOrDefault("optimizationType", "cvar");
@@ -48,7 +48,8 @@ public class Parameters {
                 "portfolioWeightsResultPath",
                 "../portfolio_weights/portfolio_weights_011.json"
         );
-        
+
+        trackedAssetName = (String) jsonObject.getOrDefault("trackedAssetName", "IBOV");
         alpha = (double) jsonObject.getOrDefault("alpha", 0.05);
     }
 
@@ -79,7 +80,8 @@ public class Parameters {
     public double getAlpha() {
         return alpha;
     }
-    
-    
 
+    public String getTrackedAssetName() {
+        return trackedAssetName;
+    }
 }

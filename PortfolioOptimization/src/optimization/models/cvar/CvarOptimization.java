@@ -26,6 +26,7 @@ public class CvarOptimization extends BaseOptimization {
 
     public CvarOptimization(Portfolio portfolio, Parameters params) throws IloException {
         super(portfolio, params);
+        super.prepare();
     }
 
     @Override
