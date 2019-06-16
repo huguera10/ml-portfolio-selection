@@ -41,23 +41,23 @@ public class Optimizer {
         );
         simulationPortfolio.preprocessPortfolioData();
 
-        Asset trackedIndex = simulationPortfolio.getAsset("IBOV");
-        portfolio.dropAsset("IBOV");
-
         BaseOptimization optimizationModel = null;
 
         switch (params.getOptimizationType()) {
-            case "regular":
+            case "cvar":
                 optimizationModel = new CvarOptimization(
                         simulationPortfolio,
                         params
                 );
                 break;
-            case "regularLazy":
+            case "ssd":
+                Asset trackedAsset = simulationPortfolio.getAsset(params.getTrackedAssetName());
+                portfolio.dropAsset(params.getTrackedAssetName());
+
                 optimizationModel = new SSDOptimization(
                         simulationPortfolio,
                         params,
-                        trackedIndex
+                        trackedAsset
                 );
                 break;
             default:
