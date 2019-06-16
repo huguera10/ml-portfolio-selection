@@ -23,11 +23,12 @@ import stockmarket.Portfolio;
 public class SSDOptimization extends BaseOptimization {
 
     private IloNumVar v;
-    private Asset trackedIndex;
+    private Asset trackedAsset;
 
-    public SSDOptimization(Portfolio portfolio, Parameters params, Asset trackedIndex) throws IloException {
+    public SSDOptimization(Portfolio portfolio, Parameters params, Asset trackedAsset) throws IloException {
         super(portfolio, params);
-        this.trackedIndex = trackedIndex;
+        
+        this.trackedAsset = trackedAsset;
         
         sortTrackedIndexReturns();
     }
@@ -75,10 +76,11 @@ public class SSDOptimization extends BaseOptimization {
         }
     }
     
+    @Override
     public boolean solve() throws IloException {
         prepare();
 
-        Asset enhancedIndex = new Asset("enhancedIndex");
+        Asset enhancedAsset = new Asset("enhancedAsset");
 
         int infeasibleIndex = 1;
         do {
@@ -89,11 +91,11 @@ public class SSDOptimization extends BaseOptimization {
             setScenariosConstraints(
                     combinations,
                     infeasibleIndex,
-                    trackedIndex.getReturn(infeasibleIndex - 1)
+                    trackedAsset.getReturn(infeasibleIndex - 1)
             );
             super.solve();
 
-            enhancedIndex = buildEnhancedIndex(enhancedIndex);
+            enhancedAsset = buildEnhancedIndex(enhancedAsset);
 
             infeasibleIndex = checkOptimality();
 
@@ -108,7 +110,7 @@ public class SSDOptimization extends BaseOptimization {
         double v = model.getValue(this.v);
                 
         for (int s = 0; s < portfolio.getS(); s++) {
-            if(trackedIndex.getReturn(s) > v){
+            if(trackedAsset.getReturn(s) > v){
                 return s;
             }
         }
@@ -116,7 +118,7 @@ public class SSDOptimization extends BaseOptimization {
         return portfolio.getS();
     }
 
-    private Asset buildEnhancedIndex(Asset enhancedIndex) {
+    private Asset buildEnhancedIndex(Asset enhancedAsset) {
         for (int s = 0; s < portfolio.getS(); s++) {
             double enhancedReturn = 0.0;
             for (int i = 0; i < portfolio.getN(); i++) {
@@ -126,13 +128,13 @@ public class SSDOptimization extends BaseOptimization {
                     enhancedReturn += (asset.getReturn(s) * asset.getWeigth());
                 }
             }
-            if (enhancedIndex.getReturns().size() < portfolio.getS()) {
-                enhancedIndex.addReturn(enhancedReturn);
+            if (enhancedAsset.getReturns().size() < portfolio.getS()) {
+                enhancedAsset.addReturn(enhancedReturn);
             } else {
-                enhancedIndex.setReturn(s, enhancedReturn);
+                enhancedAsset.setReturn(s, enhancedReturn);
             }
         }
-        return enhancedIndex;
+        return enhancedAsset;
     }
     
     private List<int[]> generateCombinations(int n, int r) { //n = total elements in array; r = size of combinations
@@ -162,7 +164,7 @@ public class SSDOptimization extends BaseOptimization {
     }
 
     private void sortTrackedIndexReturns() {
-        Collections.sort(trackedIndex.getReturns());
+        Collections.sort(trackedAsset.getReturns());
     }
 
     public IloNumVar getV() {
