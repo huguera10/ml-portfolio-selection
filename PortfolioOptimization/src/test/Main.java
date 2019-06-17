@@ -23,7 +23,7 @@ public class Main {
         if (args.length > 0) {
             parametersPath = args[0];
         } else {
-            parametersPath = "../portfolio_weights/opt_base_config.json";
+            parametersPath = "../params/opt_base_params.json";
         }
 
         Optimizer optimizer = new Optimizer(parametersPath);

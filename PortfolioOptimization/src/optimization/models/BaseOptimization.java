@@ -5,8 +5,8 @@ package optimization.models;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import ilog.concert.IloException;
+import ilog.concert.IloIntVar;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
@@ -24,10 +24,11 @@ public abstract class BaseOptimization {
 
     protected IloCplex model;
     protected IloNumVar[] w; // positive weights variables for portfolio
+    protected IloIntVar[] y; // integer variables representing the limit of total number of assets
 
     public static final double SMALL = 0.0;
     public static final double BIG = 99.0;
-    
+
     public BaseOptimization(Portfolio portfolio, Parameters params) throws IloException {
         this.portfolio = portfolio;
         this.params = params;
@@ -49,8 +50,13 @@ public abstract class BaseOptimization {
         createDecisionVariables();
         setObjectiveFunction();
         setConstraints();
+
+        if (params.getMaxNumberOfAssets() > 0) {
+            createIntegerDeciosionVariablesToLimitTotalAssets();
+            setLimitTotalAssetsConstraints();
+        }
     }
-    
+
     public boolean solve() throws IloException {
         if (model.solve()) {
             assignWeightsToPortfolio();
@@ -68,7 +74,7 @@ public abstract class BaseOptimization {
         System.out.println("-----------------------------------------");
         return false;
     }
-    
+
     protected void createBasicDecisionVariables() throws IloException {
         w = new IloNumVar[portfolio.getN()];
 
@@ -76,15 +82,35 @@ public abstract class BaseOptimization {
             w[i] = model.numVar(0.0, 1.0);
         }
     }
-    
-    
+
     protected void setWeightsConstraints() throws IloException {
         IloLinearNumExpr expr = model.linearNumExpr();
-        
+
         for (int i = 0; i < portfolio.getN(); i++) {
             expr.addTerm(1.0, w[i]);
         }
         model.addEq(expr, 1.0);
+    }
+
+    protected void createIntegerDeciosionVariablesToLimitTotalAssets() throws IloException {
+        y = new IloIntVar[portfolio.getN()];
+
+        for (int i = 0; i < portfolio.getN(); i++) {
+            y[i] = model.boolVar();
+        }
+    }
+
+    protected void setLimitTotalAssetsConstraints() throws IloException {
+        IloLinearNumExpr expr = model.linearNumExpr();
+
+        for (int i = 0; i < portfolio.getN(); i++) {
+            expr.addTerm(1.0, y[i]);
+            
+            model.addLe(w[i], y[i]);
+        }
+
+//        model.addLe(params.getMaxNumberOfAssets(), exprPlus);
+        model.addLe(expr, params.getMaxNumberOfAssets());
     }
 
     private void assignWeightsToPortfolio() throws IloException {
@@ -96,7 +122,7 @@ public abstract class BaseOptimization {
             }
         }
     }
-    
+
     protected void printPortfoliosWeights() throws IloException {
         System.out.println("-----------------------------------------");
         System.out.println("PORTFOLIO:");
@@ -111,7 +137,7 @@ public abstract class BaseOptimization {
         }
         System.out.println("Total assets: " + count + ";\tTotal weight: " + sum_weights);
     }
-    
+
     public Portfolio getPortfolio() {
         return portfolio;
     }
@@ -119,12 +145,12 @@ public abstract class BaseOptimization {
     public Parameters getParameters() {
         return params;
     }
-    
+
     public IloCplex getModel() {
         return model;
     }
-    
-    public IloNumVar getW(int i){
+
+    public IloNumVar getW(int i) {
         return w[i];
     }
 }

@@ -17,6 +17,7 @@ import org.json.simple.parser.*;
  */
 public class Parameters {
 
+    int maxNumberOfAssets;
     int historicalDays;
     int optimizationTimeLimit = 300;
 
@@ -51,6 +52,8 @@ public class Parameters {
 
         trackedAssetName = (String) jsonObject.getOrDefault("trackedAssetName", "IBOV");
         alpha = (double) jsonObject.getOrDefault("alpha", 0.05);
+        maxNumberOfAssets = (int) (long) jsonObject.getOrDefault("maxNumberOfAssets", -1);
+
     }
 
     public String getDataPath() {
@@ -83,5 +86,9 @@ public class Parameters {
 
     public String getTrackedAssetName() {
         return trackedAssetName;
+    }
+
+    public int getMaxNumberOfAssets() {
+        return maxNumberOfAssets;
     }
 }

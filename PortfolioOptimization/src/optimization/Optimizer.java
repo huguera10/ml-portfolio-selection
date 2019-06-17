@@ -52,7 +52,7 @@ public class Optimizer {
                 break;
             case "ssd":
                 Asset trackedAsset = simulationPortfolio.getAsset(params.getTrackedAssetName());
-                portfolio.dropAsset(params.getTrackedAssetName());
+                simulationPortfolio.dropAsset(params.getTrackedAssetName());
 
                 optimizationModel = new SSDOptimization(
                         simulationPortfolio,
