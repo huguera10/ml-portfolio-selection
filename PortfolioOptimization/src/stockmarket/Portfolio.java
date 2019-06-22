@@ -8,6 +8,8 @@ package stockmarket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.correlation.Covariance;
 
 /**
  *
@@ -18,11 +20,13 @@ public class Portfolio {
     private ArrayList<String> dates;
     private ArrayList<Asset> assets;
     private HashMap<String, Integer> assetsNamesMap;
+    private double[][] covarianceMatrix;
 
     public Portfolio() {
         this.dates = new ArrayList<>();
         this.assets = new ArrayList<>();
         this.assetsNamesMap = new HashMap<>();
+        covarianceMatrix = null;
     }
 
     public void parsePricesToReturns() {
@@ -120,7 +124,7 @@ public class Portfolio {
         Portfolio portfolio = new Portfolio();
         int finalIdx = index;
         int initialIdx = finalIdx - historicalDays;
-        
+
         if (initialIdx < 0) {
             initialIdx = 0;
         }
@@ -195,6 +199,40 @@ public class Portfolio {
                 return;
             }
         }
+    }
+
+    private void computeCovarianceMatrix() {
+        covarianceMatrix = new double[getN()][getN()];
+        double[][] returnsMatrix = new double[getS()][getN()];
+
+        for (int i = 0; i < getN(); i++) {
+            for (int j = 0; j < getS(); j++) {
+                returnsMatrix[j][i] = assets.get(i).getReturn(j);
+            }
+        }
+
+        RealMatrix covMatrix = new Covariance(returnsMatrix).getCovarianceMatrix();
+
+        for (int i = 0; i < getN(); i++) {
+            for (int j = 0; j < getN(); j++) {
+                covarianceMatrix[i][j] = covMatrix.getEntry(i, j);
+            }
+        }
+    }
+
+    public double[][] getCovarianceMatrix() {
+        if (covarianceMatrix == null) {
+            computeCovarianceMatrix();
+        }
+
+        return covarianceMatrix;
+    }
+
+    public void dropFirstAssetsReturn() {
+        for (int i = 0; i < getN(); i++) {
+            assets.get(i).getReturns().remove(0);
+        }
+        dates.remove(0);
     }
 
     public void addDate(String date) {
