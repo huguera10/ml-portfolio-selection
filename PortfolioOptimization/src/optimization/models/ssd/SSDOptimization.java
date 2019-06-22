@@ -8,8 +8,8 @@ package optimization.models.ssd;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import optimization.models.BaseOptimization;
 import parameters.Parameters;
@@ -27,9 +27,9 @@ public class SSDOptimization extends BaseOptimization {
 
     public SSDOptimization(Portfolio portfolio, Parameters params, Asset trackedAsset) throws IloException {
         super(portfolio, params);
-        
+
         this.trackedAsset = trackedAsset;
-        
+
         sortTrackedIndexReturns();
     }
 
@@ -68,14 +68,13 @@ public class SSDOptimization extends BaseOptimization {
                 int s = combination[s_index];
 
                 for (int i = 0; i < portfolio.getN(); i++) {
-
                     expr.addTerm(portfolio.getAsset(i).getReturn(s), w[i]);
                 }
             }
             model.addLe(v, model.diff(model.prod(constant, expr), t));
         }
     }
-    
+
     @Override
     public boolean solve() throws IloException {
         prepare();
@@ -85,13 +84,18 @@ public class SSDOptimization extends BaseOptimization {
         int infeasibleIndex = 1;
         do {
             List<int[]> combinations = generateCombinations(
-                    portfolio.getS(), 
+                    portfolio.getS(),
                     infeasibleIndex
             );
+
+            double t = 0.0;
+            for (int i = 0; i < infeasibleIndex; i++) {
+                t += (trackedAsset.getReturn(i) / portfolio.getS());
+            }
             setScenariosConstraints(
                     combinations,
                     infeasibleIndex,
-                    trackedAsset.getReturn(infeasibleIndex - 1)
+                    t
             );
             super.solve();
 
@@ -102,15 +106,18 @@ public class SSDOptimization extends BaseOptimization {
         } while (infeasibleIndex < portfolio.getS());
 
         printAtEnd();
-        
+
         return true;
     }
-    
+
     private int checkOptimality() throws IloException {
         double v = model.getValue(this.v);
-                
+
+        double t = 0.0;
         for (int s = 0; s < portfolio.getS(); s++) {
-            if(trackedAsset.getReturn(s) > v){
+            t += (trackedAsset.getReturn(s) / portfolio.getS());
+
+            if (t > v) {
                 return s;
             }
         }
@@ -121,6 +128,7 @@ public class SSDOptimization extends BaseOptimization {
     private Asset buildEnhancedIndex(Asset enhancedAsset) {
         for (int s = 0; s < portfolio.getS(); s++) {
             double enhancedReturn = 0.0;
+
             for (int i = 0; i < portfolio.getN(); i++) {
 
                 Asset asset = portfolio.getAsset(i);
@@ -136,9 +144,9 @@ public class SSDOptimization extends BaseOptimization {
         }
         return enhancedAsset;
     }
-    
+
     private List<int[]> generateCombinations(int n, int r) { //n = total elements in array; r = size of combinations
-        List<int[]> combinations = new ArrayList<>();
+        List<int[]> combinations = new LinkedList<>();
         int[] combination = new int[r];
 
         // initialize with lowest lexicographic combination
@@ -158,6 +166,10 @@ public class SSDOptimization extends BaseOptimization {
             for (int i = t + 1; i < r; i++) {
                 combination[i] = combination[i - 1] + 1;
             }
+
+//            if (combinations.size() % 10000 == 0) {
+//                return combinations;
+//            }
         }
 
         return combinations;
