@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import optimization.models.BaseOptimization;
 import optimization.models.cvar.CvarOptimization;
+import optimization.models.markowitz.MarkowitzOptimization;
 import optimization.models.ssd.SSDOptimization;
 import org.json.simple.parser.ParseException;
 import parameters.Parameters;
@@ -37,14 +38,16 @@ public class Optimizer {
 
         int dateIndex = portfolio.getDateIndex(params.getDate());
         Portfolio simulationPortfolio = portfolio.getSimulationPortfolio(
-                dateIndex, params.getHistoricalDays()
+                dateIndex, params.getHistoricalDays() + 1
         );
         simulationPortfolio.preprocessPortfolioData();
+        simulationPortfolio.dropFirstAssetsReturn();
 
         BaseOptimization optimizationModel = null;
 
         switch (params.getOptimizationType()) {
             case "cvar":
+                simulationPortfolio.dropAsset(params.getTrackedAssetName());
                 optimizationModel = new CvarOptimization(
                         simulationPortfolio,
                         params
@@ -58,6 +61,14 @@ public class Optimizer {
                         simulationPortfolio,
                         params,
                         trackedAsset
+                );
+                break;
+            case "markowitz":
+                simulationPortfolio.dropAsset(params.getTrackedAssetName());
+
+                optimizationModel = new MarkowitzOptimization(
+                        simulationPortfolio,
+                        params
                 );
                 break;
             default:

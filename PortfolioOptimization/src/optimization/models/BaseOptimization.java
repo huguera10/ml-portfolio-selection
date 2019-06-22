@@ -110,8 +110,8 @@ public abstract class BaseOptimization {
             model.addLe(w[i], y[i]);
         }
 
-//        model.addLe(params.getMaxNumberOfAssets(), exprPlus);
-        model.addLe(expr, params.getMaxNumberOfAssets());
+//        model.addLe(expr, params.getMaxNumberOfAssets());
+        model.addEq(expr, params.getMaxNumberOfAssets());
     }
 
     private void assignWeightsToPortfolio() throws IloException {

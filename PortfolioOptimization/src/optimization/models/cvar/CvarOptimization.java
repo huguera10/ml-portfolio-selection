@@ -32,7 +32,7 @@ public class CvarOptimization extends BaseOptimization {
     @Override
     public void createDecisionVariables() throws IloException {
         createBasicDecisionVariables();
-        
+
         VaR = model.numVar(-BIG, BIG);
 
         d = new IloNumVar[portfolio.getS()];
@@ -47,13 +47,13 @@ public class CvarOptimization extends BaseOptimization {
     public void setObjectiveFunction() throws IloException {
         IloLinearNumExpr fo = model.linearNumExpr();
 
-        for (int s = 0; s < this.portfolio.getS(); s++) {
+        for (int s = 0; s < portfolio.getS(); s++) {
             fo.addTerm(1.0, d[s]);
         }
 
         model.addMinimize(model.sum(
                 VaR,
-                model.prod(1.0 / (double) (this.portfolio.getS() * this.params.getAlpha()), fo)
+                model.prod(1.0 / (double) (portfolio.getS() * params.getAlpha()), fo)
         ));
     }
 
@@ -61,23 +61,23 @@ public class CvarOptimization extends BaseOptimization {
     public void setConstraints() throws IloException {
         IloLinearNumExpr expr;
 
-        for (int s = 0; s < this.portfolio.getS(); s++) {
+        for (int s = 0; s < portfolio.getS(); s++) {
             model.addGe(d[s], model.sum(model.prod(-1, VaR), model.prod(-1, r[s])));
             model.addGe(d[s], 0.0);
         }
 
-        for (int s = 0; s < this.portfolio.getS(); s++) {
+        for (int s = 0; s < portfolio.getS(); s++) {
             expr = model.linearNumExpr();
 
-            for (int i = 0; i < this.portfolio.getN(); i++) {
-                expr.addTerm(this.portfolio.getAsset(i).getReturn(s), w[i]);
+            for (int i = 0; i < portfolio.getN(); i++) {
+                expr.addTerm(portfolio.getAsset(i).getReturn(s), w[i]);
             }
             model.addEq(r[s], expr);
         }
 
         expr = model.linearNumExpr();
-        for (int i = 0; i < this.portfolio.getN(); i++) {
-            expr.addTerm(this.portfolio.getAssetMeanReturn(i), w[i]);
+        for (int i = 0; i < portfolio.getN(); i++) {
+            expr.addTerm(portfolio.getAssetMeanReturn(i), w[i]);
         }
         model.addGe(expr, PORTFOLIO_MEAN);
 
