@@ -130,7 +130,6 @@ public class InputOutput {
                     isFirstAsset = false;
             }
         }
-        bw.write("\t},\n");
         bw.write("\t}\n");
 
         bw.write("}\n");

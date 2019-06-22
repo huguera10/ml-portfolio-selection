@@ -106,6 +106,7 @@ public abstract class BaseOptimization {
         for (int i = 0; i < portfolio.getN(); i++) {
             expr.addTerm(1.0, y[i]);
             
+            model.addLe(model.prod(0.05, y[i]), w[i]);
             model.addLe(w[i], y[i]);
         }
 
