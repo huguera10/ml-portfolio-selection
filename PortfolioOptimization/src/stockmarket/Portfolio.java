@@ -120,6 +120,10 @@ public class Portfolio {
         Portfolio portfolio = new Portfolio();
         int finalIdx = index;
         int initialIdx = finalIdx - historicalDays;
+        
+        if (initialIdx < 0) {
+            initialIdx = 0;
+        }
 
         for (Asset asset : assets) {
             portfolio.addAsset(new Asset(asset.getName()));
