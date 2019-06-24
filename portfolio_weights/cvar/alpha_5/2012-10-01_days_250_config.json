@@ -1,0 +1,11 @@
+{
+  "alpha": 0.05,
+  "dataPath": "../data/bovespa_diario_close_parsed.csv",
+  "date": "2012-10-01",
+  "historicalDays": 250,
+  "maxNumberOfAssets": 10,
+  "optimizationTimeLimit": 300,
+  "optimizationType": "cvar",
+  "portfolioWeightsResultPath": "../portfolio_weights/cvar/alpha_5/2012-10-01_days_250_portfolio_weights.json",
+  "trackedAssetName": "IBOV"
+}
