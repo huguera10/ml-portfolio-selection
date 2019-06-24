@@ -82,6 +82,10 @@ public class CvarOptimization extends BaseOptimization {
         model.addGe(expr, PORTFOLIO_MEAN);
 
         setWeightsConstraints();
+        
+        for (int i = 0; i < portfolio.getN(); i++) {
+            model.addLe(w[i], 0.20);
+        }
     }
 
     @Override
