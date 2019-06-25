@@ -1,0 +1,19 @@
+{
+	"DATA_PATH": "../data/bovespa_diario_close_parsed.csv",
+	"START_DATE": "20110704",
+	"END_DATE": "20120102",
+	"HISTORICAL_DAYS": "125",
+	"OPTIMIZATION_TIME_LIMIT": "300",
+	"OPTIMIZATION_TYPE": "cvar",
+	"PORTFOLIO": {
+		"LIGT3": "0.05",
+		"OIBR3": "0.05",
+		"OIBR4": "0.05",
+		"SLED4": "0.10000000000000013",
+		"TGMA3": "0.05",
+		"TIET11": "0.2",
+		"TOTS3": "0.2",
+		"TRPL4": "0.2",
+		"UGPA3": "0.05",
+		"VLID3": "0.05"	}
+}

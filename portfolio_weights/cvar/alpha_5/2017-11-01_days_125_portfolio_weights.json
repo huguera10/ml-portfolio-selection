@@ -1,0 +1,19 @@
+{
+	"DATA_PATH": "../data/bovespa_diario_close_parsed.csv",
+	"START_DATE": "20160704",
+	"END_DATE": "20170102",
+	"HISTORICAL_DAYS": "125",
+	"OPTIMIZATION_TIME_LIMIT": "300",
+	"OPTIMIZATION_TYPE": "cvar",
+	"PORTFOLIO": {
+		"CPFE3": "0.2",
+		"CSMG3": "0.05133427901143954",
+		"ESTC3": "0.05",
+		"IVVB11": "0.2",
+		"LCAM3": "0.05",
+		"SAPR4": "0.05",
+		"SHOW3": "0.051425580677496543",
+		"SUZB3": "0.05",
+		"UNIP6": "0.1803816084637416",
+		"WEGE3": "0.11685853184732234"	}
+}
