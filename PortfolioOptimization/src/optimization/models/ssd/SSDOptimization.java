@@ -92,16 +92,28 @@ public class SSDOptimization extends BaseOptimization {
             for (int i = 0; i < infeasibleIndex; i++) {
                 t += (trackedAsset.getReturn(i) / portfolio.getS());
             }
+
+	    // create an interatior of sublists to add scenarios constraints in small portions
+	    // the infeasible index must be checked every time, in order to break the loop between sub combinations
+	    // List<int[]> subCombinations = combinations.subList(1
+	    
             setScenariosConstraints(
                     combinations,
                     infeasibleIndex,
                     t
             );
-            super.solve();
 
-            enhancedAsset = buildEnhancedIndex(enhancedAsset);
+            if (super.solve()) {
+		// if solution is not optimal, just return and don't keep trying other solutions
+		if (!model.getStatus().equals("Optimal")){
+		    return true;
+		}
 
-            infeasibleIndex = checkOptimality();
+        	enhancedAsset = buildEnhancedIndex(enhancedAsset);
+	        infeasibleIndex = checkOptimality();
+	    } else {
+		return false;
+	    }
 
         } while (infeasibleIndex < portfolio.getS());
 
