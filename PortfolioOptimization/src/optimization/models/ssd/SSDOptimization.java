@@ -47,6 +47,10 @@ public class SSDOptimization extends BaseOptimization {
 
     @Override
     public void setConstraints() throws IloException {
+        for (int i = 0; i < portfolio.getN(); i++) {
+            model.addLe(w[i], 0.20);
+        }
+
         setWeightsConstraints();
     }
 
@@ -83,6 +87,15 @@ public class SSDOptimization extends BaseOptimization {
 
         int infeasibleIndex = 1;
         do {
+            if (infeasibleIndex > 10) {
+                System.out.println("Infeasible index too high: " + infeasibleIndex + ". The algorithm will finish.");
+                return true;
+            }
+
+            System.out.println("*******************\n"
+                    + "Generating SSD constraints for infeasible index: " + infeasibleIndex
+                    + "\n*******************");
+
             List<int[]> combinations = generateCombinations(
                     portfolio.getS(),
                     infeasibleIndex
@@ -93,27 +106,35 @@ public class SSDOptimization extends BaseOptimization {
                 t += (trackedAsset.getReturn(i) / portfolio.getS());
             }
 
-	    // create an interatior of sublists to add scenarios constraints in small portions
-	    // the infeasible index must be checked every time, in order to break the loop between sub combinations
-	    // List<int[]> subCombinations = combinations.subList(1
-	    
-            setScenariosConstraints(
-                    combinations,
-                    infeasibleIndex,
-                    t
-            );
+            // create an interatior of sublists to add scenarios constraints in small portions
+            // the infeasible index must be checked every time, in order to break the loop between sub combinations
+            for (int i = 0; i < combinations.size(); i += 100) {
 
-            if (super.solve()) {
-		// if solution is not optimal, just return and don't keep trying other solutions
-		if (!model.getStatus().equals("Optimal")){
-		    return true;
-		}
+//            List<int[]> subCombinations = combinations.subList(i, i+1000);
+                int maxCombinationsIndex = Math.min(i + 100, combinations.size() - 1);
+                setScenariosConstraints(
+                        combinations.subList(i, i + maxCombinationsIndex),
+                        infeasibleIndex,
+                        t
+                );
 
-        	enhancedAsset = buildEnhancedIndex(enhancedAsset);
-	        infeasibleIndex = checkOptimality();
-	    } else {
-		return false;
-	    }
+                if (super.solve()) {
+                    // if solution is not optimal, just return and don't keep trying other solutions
+                    if (!model.getStatus().toString().equals("Optimal")) {
+                        return true;
+                    }
+
+                    enhancedAsset = buildEnhancedIndex(enhancedAsset);
+                    int newInfeasibleIndex = checkOptimality();
+
+                    if (newInfeasibleIndex > infeasibleIndex) {
+                        infeasibleIndex = newInfeasibleIndex;
+                        break;
+                    }
+                } else {
+                    return false;
+                }
+            }
 
         } while (infeasibleIndex < portfolio.getS());
 
@@ -179,10 +200,12 @@ public class SSDOptimization extends BaseOptimization {
                 combination[i] = combination[i - 1] + 1;
             }
 
-//            if (combinations.size() % 10000 == 0) {
-//                return combinations;
-//            }
+            if (combinations.size() % 1000000 == 0) {
+                return combinations;
+            }
         }
+
+        System.out.println("Combinations generated: " + combinations.size());
 
         return combinations;
     }

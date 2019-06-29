@@ -18,7 +18,7 @@ import stockmarket.Portfolio;
  */
 public class MarkowitzOptimization extends BaseOptimization {
 
-    public static final double PORTFOLIO_MIN_RETURN = 0.005;
+    public static final double PORTFOLIO_MIN_RETURN = 0.0;
 
     public MarkowitzOptimization(Portfolio portfolio, Parameters params) throws IloException {
         super(portfolio, params);
